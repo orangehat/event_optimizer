@@ -1,0 +1,69 @@
+<script type="text/javascript">
+    function selectProfile(id, name) {
+        $('#favorite_user_fb_id').val(id);
+        $('#favorite_user_fb_name').val(name);
+    }
+</script>
+
+<%= form_for(@favorite_user) do |f| %>
+    <% if @favorite_user.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(@favorite_user.errors.count, "error") %> prohibited this favorite_user from being saved:</h2>
+
+          <ul>
+            <% @favorite_user.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+    <% end %>
+
+    <div class="field">
+      <%= label_tag :name %><br />
+      <%= text_field_tag :name %>
+      <div class="actions">
+        <%= f.submit '検索','name' => 'search' %>
+      </div>
+      <div class="search_list">
+        <table>
+          <thead>
+          <tr>
+            <td>id</td>
+            <td>名前</td>
+            <td>アイコン</td>
+          </tr>
+          </thead>
+          <tbody>
+          <% if @profiles %>
+              <% @profiles.each do |profile| %>
+                  <tr>
+                    <td><%= link_to profile['id'] , 'javascript::void(0);', :onclick => %[selectProfile('#{profile['id']}', '#{profile['name']}'); return false;] %></td>
+                    <td><%= link_to profile['name'], profile['link'] %></td>
+                    <td><%= image_tag profile['picture']['data']['url'] %></td>
+                  </tr>
+              <% end %>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="field">
+      <%= f.label :fb_id %><br />
+      <%= f.text_field :fb_id %>
+    </div>
+    <div class="field">
+      <%= f.label :fb_name %><br />
+      <%= f.text_field :fb_name %>
+    </div>
+    <div class="field">
+      <%= f.label :tw_id %><br />
+      <%= f.text_field :tw_id %>
+    </div>
+    <div class="field">
+      <%= f.label :tw_name %><br />
+      <%= f.text_field :tw_name %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>

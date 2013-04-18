@@ -1,0 +1,30 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @favorite_user.name %>
+</p>
+
+<p>
+  <b>Fb:</b>
+  <%= @favorite_user.fb_id %>
+</p>
+
+<p>
+  <b>Fb name:</b>
+  <%= @favorite_user.fb_name %>
+</p>
+
+<p>
+  <b>Tw:</b>
+  <%= @favorite_user.tw_id %>
+</p>
+
+<p>
+  <b>Tw name:</b>
+  <%= @favorite_user.tw_name %>
+</p>
+
+
+<%= link_to 'Edit', edit_favorite_user_path(@favorite_user) %> |
+<%= link_to 'Back', favorite_users_path %>

@@ -1,0 +1,9 @@
+<h1>Home#index</h1>
+
+<% if user_signed_in? %>
+    Sign in as <strong><%= current_user.name %></strong> | <%= link_to "Sign out", destroy_user_session_path, :method => :delete %>
+    <%= link_to "Event list", "http://orangehat.ne.jp/event" %>
+<% else %>
+    <%= link_to "Sign in with Facebook", user_omniauth_authorize_path(:facebook) %>
+    <%= link_to "Sign in with Twitter", user_omniauth_authorize_path(:twitter) %>
+<% end %>

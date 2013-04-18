@@ -1,0 +1,31 @@
+<h1>Listing favorite_users</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Fb</th>
+    <th>Fb name</th>
+    <th>Tw</th>
+    <th>Tw name</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @favorite_users.each do |favorite_user| %>
+  <tr>
+    <td><%= favorite_user.name %></td>
+    <td><%= favorite_user.fb_id %></td>
+    <td><%= favorite_user.fb_name %></td>
+    <td><%= favorite_user.tw_id %></td>
+    <td><%= favorite_user.tw_name %></td>
+    <td><%= link_to 'Show', favorite_user %></td>
+    <td><%= link_to 'Edit', edit_favorite_user_path(favorite_user) %></td>
+    <td><%= link_to 'Destroy', favorite_user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Favorite user', new_favorite_user_path %>

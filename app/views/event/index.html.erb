@@ -1,0 +1,205 @@
+<script type="text/javascript">
+    var $j = jQuery;
+    function jquery_dump($obj) {
+        var dumphtml = [];
+//        if($j.browser.msie) {
+//            for(var i = 0; i < $obj.length; i++) {
+//                dumphtml.push('[' + i + '] ');
+//                dumphtml.push($obj[i].outerHTML.replace(/^[\r\n\t]+/, ''));
+//                dumphtml.push("\n");
+//            }
+//        } else {
+            for(var i = 0; i < $obj.length; i++) {
+                dumphtml.push('[' + i + '] '
+                        + '<' + $obj[i].nodeName.toLowerCase());
+                for(var j = 0; j < $obj[i].attributes.length; j++) {
+                    dumphtml.push(' ' + $obj[i].attributes[j].nodeName + '="'
+                            + $obj[i].attributes[j].nodeValue + '"');
+                }
+                dumphtml.push('>' + $obj[i].innerHTML);
+                dumphtml.push('<\/' + $obj[i].nodeName.toLowerCase() + '>');
+                dumphtml.push("\n");
+            }
+//        }
+        alert(dumphtml.join(''));
+    }
+    //$j('.datepicker').datepicker();
+    var favorite_users = <%= raw @favorite_users.to_json %>;
+    var isVisible = false;
+    var clickedAway = false;
+    $j(function(){
+        $j.each(favorite_users, function(i, user) {
+            //$j.get('event/list/' + user.fb_id + ".json", function(data) {
+            $j.ajax({
+                type: 'GET',
+                url: 'event/list/' + user.fb_id + ".json",
+                success: function(data) {
+                    add_div(data);
+                    add_link(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseText);
+                }
+            });
+        });
+    });
+//    $j("a[rel='popover']").parent().mouseout(function(e) {
+//        if(isVisible && clickedAway) {
+//            $j("a[rel='popover']").popover('hide');
+//            isVisible = clickedAway = false;
+//        } else {
+//            clickedAway = true;
+//        }
+//    });
+    var add_div = function(eventAsJson) {
+        $j.each(eventAsJson, function(key, events_by_day) {
+            var div;
+            if ($j('#day' + key).length == 0) {
+                div = $j('<div>').attr({
+                                     id: 'day' + key,
+                                     //class: 'modal_message'
+                                     class: 'modal hide fade'
+                                 }).css({
+                                     display: 'none',
+                                     width: '500px'
+                                 }).append($j('<div>').attr('class', 'modal-header')
+                                     .append($j('<button>')
+                                         .attr({
+                                             class: 'close',
+                                             'data-dismiss': 'modal',
+                                             'aria-hidden': true
+                                         })
+                                         .text('x')
+                                     )
+                                     .append($j('<h3>')
+                                         .text(key + '日')
+                                     )
+                                 ).append($j('<div>')
+                                     .attr({
+                                         class: 'modal-body'
+                                     })
+                                     .css({
+                                         'max-height': '800px'
+                                     })
+                                 );
+            } else {
+                div = $j('#day' + key);
+            }
+            //var ul = div.append($j('<ul>'));
+            $j.each(events_by_day, function(i, event) {
+                //alert(event['name']);
+                var data_html = event['location'] + '<br />' + event['start_time'];
+                div.append($j('<p>')
+                        .append($j('<a>')
+                                .attr({
+                                    href: 'https://www.facebook.com/events/' + event['id'],
+                                    target: '_blank',
+                                    'data-html': true,
+                                    'data-placement': 'top',
+                                    'data-trigger': 'hover',
+                                    title: event['name'],
+                                    'data-content': data_html
+                                })
+                                .css('display', 'block')
+                                .text(event['name'])
+                                .popover()
+                        )
+                );
+            });
+            $j('#event_list').append(div);
+        });
+    }
+    var add_link = function(eventAsJson) {
+        $j.each(eventAsJson, function(key, events_by_day) {
+            var is_more = false;
+            var count = $j('#day' + key + '_td').find('p').length;
+            if (count < 3) {
+                var div = $j('<div>');
+                $j.each(events_by_day, function(i, event) {
+                    if (count + i < 3) {
+                        var data_html = event['location'] + '<br />' + event['start_time'];
+                        div.append($j('<p>')
+                                .append($j('<a>')
+                                        .attr({
+                                            href: 'https://www.facebook.com/events/' + event['id'],
+                                            target: '_blank',
+                                            'data-html': true,
+                                            'data-placement': 'top',
+                                            'data-trigger': 'hover',
+                                            title: event['name'],
+                                            'data-content': data_html
+                                        })
+                                        .css('display', 'block')
+                                        .text(event['name'])
+                                        .popover()
+                                )
+                        )
+                    } else {
+                        is_more = true;
+                    }
+                });
+                $j('#day' + key + '_td').append(div);
+            } else {
+                is_more = true;
+            }
+            if (is_more && $j('.day' + key + '_more').length == 0) {
+                $j('#day' + key + '_td').append($j('<p>')
+                        .attr('class', 'day' + key + '_more')
+                        .append($j('<a>')
+                                .attr({
+                                    href: '#day' + key,
+                                    'data-toggle': 'modal',
+                                    class: 'btn'
+                                })
+                                .text('more...')
+                                //.modal()
+                        )
+                );
+            }
+        });
+    }
+
+    $j('#previous_month').click(move_month(-1));
+    $j('#next_month').click(move_month(1));
+    var move_month = function(mount) {
+    }
+</script>
+
+<%= form_tag({:controller => 'event', :action => 'index'}, {:id => 'event_form'}) do %>
+<div id="month">
+  <%= link_to '<<', 'javascript::void(0);', :id => 'previous_month' %>
+  <%= "#{@year}/#{@month}" %>
+  <%= link_to '>>', 'javascript::void(0);', :id => 'next_month' %>
+  <%= hidden_field_tag 'year', @year %>
+  <%= hidden_field_tag 'month', @month %>
+</div>
+<% end %>
+<div id="event_calendar">
+  <table class="table table-bordered">
+    <thead>
+    <tr>
+      <th class="span3">日</th>
+      <th class="span3">月</th>
+      <th class="span3">火</th>
+      <th class="span3">水</th>
+      <th class="span3">木</th>
+      <th class="span3">金</th>
+      <th class="span3">土</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @weeks.each do |week| %>
+        <tr>
+          <td id=<%= "day#{week[0]}_td" %>><%= week[0] %></td>
+          <td id=<%= "day#{week[1]}_td" %>><%= week[1] %></td>
+          <td id=<%= "day#{week[2]}_td" %>><%= week[2] %></td>
+          <td id=<%= "day#{week[3]}_td" %>><%= week[3] %></td>
+          <td id=<%= "day#{week[4]}_td" %>><%= week[4] %></td>
+          <td id=<%= "day#{week[5]}_td" %>><%= week[5] %></td>
+          <td id=<%= "day#{week[6]}_td" %>><%= week[6] %></td>
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+  <div id="event_list"></div>
+</div>
